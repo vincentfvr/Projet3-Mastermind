@@ -55,6 +55,7 @@ public class Modules {
      * LANCEMENT DU MODE CHALLENGER --> MODE 1
      */
     private void runChallengerMode() {
+
         this.generateCombination();
         do {
             nbTry += 1;
