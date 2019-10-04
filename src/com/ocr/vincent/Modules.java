@@ -15,10 +15,8 @@ public class Modules {
     int nbTryLimit = 10; /** nombre d'essai autorisé avant de trouver la bonne solution*/
     int victory = 0; /** 0 combinaison pas trouvée - 1 combinaison trouvée */
 
-    String theReply = ""; /** Résultat de la suggestion contenant + - ou = */
     String winReply= ""; /** Résultalt de la combinaison à obtenir (=) x combLen */
 
-    String strComb = ""; /** combinaison saisie au format txt, chaine de caractères*/
     List<Integer> usrComb = new ArrayList<Integer> (combLen); /** USER Combinaison Liste Array integer*/
     List<Integer> cpuComb = new ArrayList<Integer>(combLen); /** CPU Combinaison Liste Array integer*/
 
@@ -55,14 +53,15 @@ public class Modules {
      * LANCEMENT DU MODE CHALLENGER --> MODE 1
      */
     private void runChallengerMode() {
-        String genCombi = this.generateCombination(); // Contient la combinaison générée aléatoirement
-        String askCombi = "";  // Contient la suggestion saisie par l'utilisateur
+        String genCombi = this.generateCombination(); // combinaison générée aléatoirement
+        String askCombi = "";  // Suggestion saisie par l'utilisateur
+        String reply=""; // Résultat après comparaison (+ - =)
         do {
             nbTry += 1;
             askCombi = this.askCombination();
             this.displayCombination(genCombi, askCombi);
-            //this.compareCombination();
-            this.displayResult();
+            reply = this.compareCombination(genCombi, askCombi);
+            this.displayResult(reply);
         } while (victory == 0);
     }
 
@@ -75,9 +74,9 @@ public class Modules {
         do {
             nbTry += 1;
             //this.displayCombination();
-            this.findCombination();
-            this.compareCombination();
-            this.displayResult();
+            //this.findCombination();
+            //this.compareCombination();
+            //this.displayResult();
             if (nbTry==nbTryLimit) {
                 victory = 1;
             }
@@ -166,7 +165,7 @@ public class Modules {
                 do {
                     number = (int) (Math.random() * 10);     /** avec 0 < nb < 9 */
                     if (number >= 1) {
-                        cpuComb.add(number); /** ------------- A SUPPRIMER ------------ */
+                        cpuComb.add(number); /** ------------- A SUPPRIMER APRES ADAPTATION DU MODE DEFENDER------------ */
                         randomCode = randomCode + number;
                     }
                 } while (number == 0);
@@ -186,7 +185,7 @@ public class Modules {
         boolean charControl = true;
         do {
             userComb = sc.nextLine(); // scanner
-            if (userComb.length() != combLen) { // CONTROLE DU NOMBRE DE CHARACTERES SAISI
+            if (userComb.length() != combLen) { // CONTROLE DU NOMBRE DE CHARACTÈRES SAISI
                 System.out.println("Saisir une combinaison de " + combLen + " chiffre(s) (entre 1 et 9) et valider avec Entrée");
                 charControl = true;
             } else if (userComb.length() == combLen) {
@@ -197,7 +196,7 @@ public class Modules {
     }
 
     /**
-     * Permet de tester si chaque charactere sont bien des chiffres
+     * Permet de tester si chaque charactère est bien un chiffre
      * @param testComb -> Chaine de caratères à tester
      * @return b1 True si le controle est à refaire. False si le controle est terminé
      */
@@ -230,42 +229,35 @@ public class Modules {
     /**
      * COMPARATEUR DES DEUX COMBINAISONS
      */
-    private void compareCombination() {
+    public String compareCombination(String aaaa, String bbbb) {
+        String theReply = ""; /** Résultat de la suggestion contenant + - ou = */
         int secretComb=0 ;
         int suggestComb=0 ;
-        /** Comparaison des valeurs et Création de theReply -> indications + ou - ou =*/
+        /** Comparaison des valeurs*/
         for ( i = 0 ; i<combLen; i++) {
-            switch (selectedMode) {
-                case 1:
-                    secretComb = cpuComb.get(i);
-                    suggestComb = usrComb.get(i);
-                    break;
-                case 2:
-                    secretComb = usrComb.get(i);
-                    suggestComb = cpuComb.get(i);
-                    break;
-                case 3:
-                    break;
-            }
-            if (secretComb==suggestComb) {
+            secretComb = Character.getNumericValue(aaaa.charAt(i));
+            suggestComb = Character.getNumericValue(bbbb.charAt(i));
+
+            if (secretComb == suggestComb) {
                 theValues.set(i, secretComb);
                 maxValues.set(i, 0);
                 minValues.set(i, 0);
                 theReply = theReply + "=";
-            } else if (secretComb<suggestComb) {
+            } else if (secretComb < suggestComb) {
                 maxValues.set(i, suggestComb);
                 theReply = theReply + "-";
-            }else if (secretComb>suggestComb) {
+            } else if (secretComb > suggestComb) {
                 minValues.set(i, suggestComb);
                 theReply = theReply + "+";
             }
         }
+        return theReply;
     }
 
     /**
      * Affichage du résultat
      */
-    public void displayResult() {
+    public void displayResult(String theReply) {
         /** Affichage des indications */
         System.out.println("Indication --> " + theReply);
         if (helpMode) {
@@ -280,6 +272,6 @@ public class Modules {
             System.out.println("* GAGNÉ! Combinaison trouvée en " + nbTry + " coups. *");
             System.out.println("******************************************");
         }
-        theReply ="";
+        //theReply ="";
     }
 }
