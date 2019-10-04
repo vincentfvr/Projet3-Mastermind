@@ -55,13 +55,13 @@ public class Modules {
      * LANCEMENT DU MODE CHALLENGER --> MODE 1
      */
     private void runChallengerMode() {
-
-        this.generateCombination();
+        String genCombi = this.generateCombination(); // Contient la combinaison générée aléatoirement
+        String askCombi = "";  // Contient la suggestion saisie par l'utilisateur
         do {
             nbTry += 1;
-            this.askCombination();
-            this.displayCombination();
-            this.compareCombination();
+            askCombi = this.askCombination();
+            this.displayCombination(genCombi, askCombi);
+            //this.compareCombination();
             this.displayResult();
         } while (victory == 0);
     }
@@ -74,7 +74,7 @@ public class Modules {
 
         do {
             nbTry += 1;
-            this.displayCombination();
+            //this.displayCombination();
             this.findCombination();
             this.compareCombination();
             this.displayResult();
@@ -159,46 +159,72 @@ public class Modules {
     /**
      *  Génere de manière aléatoire une combinaison à X chiffres
      */
-    public void generateCombination() {
-        int nb = 0;
+    public String generateCombination() {
+        int number = 0;
+        String randomCode ="";
             for (i = 0; i < combLen; i++) {
                 do {
-                    nb = (int) (Math.random() * 10);     /** avec 0 < nb < 9 */
-                    if (nb >= 1) {
-                        cpuComb.add(nb);
+                    number = (int) (Math.random() * 10);     /** avec 0 < nb < 9 */
+                    if (number >= 1) {
+                        cpuComb.add(number); /** ------------- A SUPPRIMER ------------ */
+                        randomCode = randomCode + number;
                     }
-                } while (nb == 0);
+                } while (number == 0);
             }
+            return randomCode;
     }
 
     /**
-     * Affiche la demande de proposition (avec numérotation counter/4)
+     * Demande de saisir une suggestion de combinaison générée (avec numérotation counter/combLen)
+     * + Procédure de controle de saisie : nombre de caractère +
+     * userComb = Combinaison saisie par l'utilisateur
+     * charControl : True si le controle doit être effectué, false si le controle n'est plus à faire
      */
-    public void askCombination() {
-        usrComb.clear();
+    public String askCombination() {
+        usrComb.clear(); /** ------------- A SUPPRIMER ------------ */
+        String userComb ="";
+        boolean charControl = true;
         do {
-            strComb = sc.nextLine();
-            if (strComb.length() != combLen) {
+            userComb = sc.nextLine(); // scanner
+            if (userComb.length() != combLen) { // CONTROLE DU NOMBRE DE CHARACTERES SAISI
                 System.out.println("Saisir une combinaison de " + combLen + " chiffre(s) (entre 1 et 9) et valider avec Entrée");
-                /** System.out.println("La combinaison doit avoir : " + combLen + " chiffre(s)"); */
-            } else if (strComb.length() == combLen) {
-                /** convertion chaine txt -> Array Integer pour chaque charactère*/
-                for (i=0 ; i < combLen; i++) {
-                    usrComb.add(Integer.parseInt(strComb.valueOf(strComb.substring(i, i+1))));
-                }
+                charControl = true;
+            } else if (userComb.length() == combLen) {
+                charControl = this.inputControl(userComb); // CONTROLE QUE TOUS LES CHARACTERES SOIENT DES CHIFFRES
             }
-        } while (strComb.length() != combLen);
+        } while (charControl);
+        return userComb;
     }
 
     /**
-     * Affiche la proposition faite avec + la numérotation
+     * Permet de tester si chaque charactere sont bien des chiffres
+     * @param testComb -> Chaine de caratères à tester
+     * @return b1 True si le controle est à refaire. False si le controle est terminé
      */
-    public void displayCombination() {
+    private boolean inputControl(String testComb) {
+        boolean b1 = false; // état du controle d'entrée. False par défaut. Renvoie True si une erreur est trouvée
+        boolean b2; // variable True/false du test isDigit()
+        char temp; // variable temporaire pour la boucle. Stocke caractère par caractère de la chaine testComb
+        for (i=0 ; i < combLen; i++) {
+            temp = testComb.charAt(i);
+            b2 = Character.isDigit(temp);
+            if (!b2){
+                b1 = true;
+            }
+        }
+        if (b1) System.out.println("Saisir uniquement des chiffres");
+        return b1;
+    }
+
+    /**
+     * Affiche la proposition faite avec + le nombre d'essais
+     */
+    public void displayCombination(String aaa, String bbb) {
         if (devMode) {
-            System.out.println("DEV-MODE   : " + cpuComb);
+            System.out.println("DEV-MODE   : " + aaa);
             }
         System.out.println("Essai n°" + nbTry);
-        System.out.println("Suggestion --> " + strComb);
+        System.out.println("Suggestion --> " + bbb);
     }
 
     /**
