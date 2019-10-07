@@ -12,14 +12,10 @@ public class Modules {
     boolean devMode = false; /** false Normal - true Mode Développeur*/
     boolean helpMode = false; /** false Normal - true Mode Aide mémoire*/
     int nbTry = 0; /** Compteur d'essais */
-    int nbTryLimit = 10; /** nombre d'essai autorisé avant de trouver la bonne solution*/
+    int nbTryLimit = 10; /** nombre d'essais autorisés avant de trouver la bonne solution*/
     int victory = 0; /** 0 combinaison pas trouvée - 1 combinaison trouvée */
 
     String winReply= ""; /** Résultalt de la combinaison à obtenir (=) x combLen */
-
-    List<Integer> usrComb = new ArrayList<Integer> (combLen); /** USER Combinaison Liste Array integer*/
-    List<Integer> cpuComb = new ArrayList<Integer>(combLen); /** CPU Combinaison Liste Array integer*/
-
     List<Integer> minValues = new ArrayList<Integer>(combLen); /** Mémorise les valeurs min*/
     List<Integer> maxValues = new ArrayList<Integer>(combLen); /** Mémorise les valeurs max*/
     List<Integer> theValues = new ArrayList<Integer>(combLen); /** Mémorise les valeurs justes*/
@@ -69,23 +65,24 @@ public class Modules {
      * LANCEMENT DU MODE DEFENSEUR --> MODE 2
      */
     private void runDefenderMode() {
-        this.askCombination();
-
+        String askCombi = this.askCombination();  // Suggestion saisie par l'utilisateur
+        String genCombi = ""; // combinaison générée aléatoirement
+        String reply=""; // Résultat après comparaison (+ - =)
         do {
             nbTry += 1;
-            //this.displayCombination();
-            //this.findCombination();
-            //this.compareCombination();
-            //this.displayResult();
+            genCombi = this.findCombination();
+            this.displayCombination(askCombi, genCombi);
+            reply = this.compareCombination(askCombi, genCombi);
+            this.displayResult(reply);
             if (nbTry==nbTryLimit) {
                 victory = 1;
             }
         } while (victory == 0);
     }
 
-    private void findCombination() {
+    private String findCombination() {
+        String cpuComb="";
         int nb = 0;
-        cpuComb.clear();
         for (i = 0; i < combLen; i++) {
             do {
                 if (devMode) {
@@ -107,13 +104,14 @@ public class Modules {
                         nb = (minValues.get(i) + maxValues.get(i)) / 2;
                     }
                 }
-                cpuComb.add(nb);
+                cpuComb = cpuComb + nb;
             } while (nb <= 0);
             if (devMode) {
                 System.out.println("DEV_MODE ------> : " + cpuComb);
                 System.out.println("nb " + nb + " max " + maxValues.get(i) + " min " + minValues.get(i));
             }
         }
+        return cpuComb;
     }
 
     /**
@@ -165,7 +163,6 @@ public class Modules {
                 do {
                     number = (int) (Math.random() * 10);     /** avec 0 < nb < 9 */
                     if (number >= 1) {
-                        cpuComb.add(number); /** ------------- A SUPPRIMER APRES ADAPTATION DU MODE DEFENDER------------ */
                         randomCode = randomCode + number;
                     }
                 } while (number == 0);
@@ -180,7 +177,6 @@ public class Modules {
      * charControl : True si le controle doit être effectué, false si le controle n'est plus à faire
      */
     public String askCombination() {
-        usrComb.clear(); /** ------------- A SUPPRIMER ------------ */
         String userComb ="";
         boolean charControl = true;
         do {
@@ -229,14 +225,14 @@ public class Modules {
     /**
      * COMPARATEUR DES DEUX COMBINAISONS
      */
-    public String compareCombination(String aaaa, String bbbb) {
+    public String compareCombination(String comb1, String comb2) {
         String theReply = ""; /** Résultat de la suggestion contenant + - ou = */
         int secretComb=0 ;
         int suggestComb=0 ;
         /** Comparaison des valeurs*/
         for ( i = 0 ; i<combLen; i++) {
-            secretComb = Character.getNumericValue(aaaa.charAt(i));
-            suggestComb = Character.getNumericValue(bbbb.charAt(i));
+            secretComb = Character.getNumericValue(comb1.charAt(i));
+            suggestComb = Character.getNumericValue(comb2.charAt(i));
 
             if (secretComb == suggestComb) {
                 theValues.set(i, secretComb);
@@ -272,6 +268,5 @@ public class Modules {
             System.out.println("* GAGNÉ! Combinaison trouvée en " + nbTry + " coups. *");
             System.out.println("******************************************");
         }
-        //theReply ="";
     }
 }
